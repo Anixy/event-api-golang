@@ -50,7 +50,7 @@ func TestUserServiceImpl_Register(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			user := tt.userService.Register(tt.args.ctx, tt.args.request)
+			user, _ := tt.userService.Register(tt.args.ctx, tt.args.request)
 			assert.Equal(t, tt.want.Id, user.Id)
 			assert.Equal(t, tt.want.Name, user.Name)
 			assert.Equal(t, tt.want.Email, user.Email)
@@ -92,7 +92,7 @@ func TestUserServiceImpl_Login(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			token := tt.userService.Login(tt.args.ctx, tt.args.request)
+			token, _ := tt.userService.Login(tt.args.ctx, tt.args.request)
 			assert.NotEmpty(t, token)
 		})
 	}

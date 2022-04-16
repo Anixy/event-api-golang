@@ -8,6 +8,6 @@ import (
 )
 
 type UserService interface {
-	Register(ctx context.Context, request web.RegisterUserRequest) domain.User
-	Login(ctx context.Context, request web.LoginUserRequest) string
+	Register(ctx context.Context, request web.RegisterUserRequest) (domain.User, error)
+	Login(ctx context.Context, request web.LoginUserRequest) (string, error)
 }

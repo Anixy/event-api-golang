@@ -2,7 +2,6 @@ package helpers
 
 import (
 	"errors"
-	"time"
 
 	"github.com/Anixy/event-api-golang/model/domain"
 	"github.com/golang-jwt/jwt"
@@ -23,7 +22,7 @@ func CreateJwtToken(user domain.User) string {
 			Email: user.Email,
 		},
 		jwt.StandardClaims{
-			ExpiresAt: int64(15*time.Minute),
+			ExpiresAt: 60000000000,
 		},
 	}
 

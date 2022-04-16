@@ -67,7 +67,7 @@ func TestUserRepositoryImpl_Save(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tx, err :=db.Begin()
 			helpers.PanicIfError(err)
-			user := tt.userRepository.Save(tt.args.ctx, tx, tt.args.user)
+			user, _ := tt.userRepository.Save(tt.args.ctx, tx, tt.args.user)
 			err = tx.Commit()
 			helpers.PanicIfError(err)
 			assert.Equal(t, tt.want.Id, user.Id)
@@ -124,7 +124,7 @@ func TestUserRepositoryImpl_Update(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tx, err := db.Begin()
 			helpers.PanicIfError(err)
-			user := tt.userRepository.Update(tt.args.ctx, tx, tt.args.user)
+			user, _ := tt.userRepository.Update(tt.args.ctx, tx, tt.args.user)
 			err = tx.Commit()
 			helpers.PanicIfError(err)
 			assert.Equal(t, tt.want.Id, user.Id)
@@ -183,7 +183,7 @@ func TestUserRepositoryImpl_Delete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			tx, err := db.Begin()
 			helpers.PanicIfError(err)
-			user := tt.userRepository.Delete(tt.args.ctx, tx, tt.args.user)
+			user, _ := tt.userRepository.Delete(tt.args.ctx, tx, tt.args.user)
 			err = tx.Commit()
 			helpers.PanicIfError(err)
 			assert.Equal(t, tt.want.Id, user.Id)
@@ -296,7 +296,7 @@ func TestUserRepositoryImpl_FindAll(t *testing.T) {
 	for _, tt := range tests {
 		tx, err := db.Begin()
 		helpers.PanicIfError(err)
-		users := tt.userRepository.FindAll(tt.args.ctx, tx)
+		users, _ := tt.userRepository.FindAll(tt.args.ctx, tx)
 		helpers.PanicIfError(err)
 		err = tx.Commit()
 		helpers.PanicIfError(err)

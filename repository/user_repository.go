@@ -8,10 +8,10 @@ import (
 )
 
 type UserRepository interface {
-	Save(ctx context.Context, tx *sql.Tx ,user domain.User) domain.User
-	Update(ctx context.Context, tx *sql.Tx, user domain.User) domain.User
-	Delete(ctx context.Context, tx *sql.Tx, user domain.User) domain.User
+	Save(ctx context.Context, tx *sql.Tx ,user domain.User) (domain.User, error)
+	Update(ctx context.Context, tx *sql.Tx, user domain.User) (domain.User, error)
+	Delete(ctx context.Context, tx *sql.Tx, user domain.User) (domain.User, error)
 	FindById(ctx context.Context, tx *sql.Tx, user domain.User) (domain.User, error)
-	FindAll(ctx context.Context, tx *sql.Tx) []domain.User
+	FindAll(ctx context.Context, tx *sql.Tx) ([]domain.User, error)
 	FindByEmail(ctx context.Context, tx *sql.Tx, user domain.User) (domain.User, error)
 }

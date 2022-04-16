@@ -1,6 +1,8 @@
 package app
 
 import (
+	"fmt"
+
 	"github.com/Anixy/event-api-golang/controllers"
 	"github.com/Anixy/event-api-golang/middleware"
 	"github.com/Anixy/event-api-golang/repository"
@@ -14,14 +16,14 @@ func SetupRouter() *gin.Engine {
 	userService := services.NewUserServiceImpl(userRepository, db)
 	userController := controllers.NewUserControllerImpl(userService)
 	r := gin.Default()
-
+	// r.Use(middleware.ErrorHandler())
 	auth := r.Group("api/v1/auth")
 	auth.POST("/register", userController.Register)
 	auth.POST("/login", userController.Login)
 	v1 := r.Group("api/v1")
 	v1.Use(middleware.AuthMiddleware())
-	v1.Use(gin.Recovery())
 	v1.GET("/secret-data", func(ctx *gin.Context) {
+		fmt.Println("masuk")
 		ctx.JSON(200, gin.H{
 			"message": "Secret data",
 		})

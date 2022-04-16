@@ -24,35 +24,46 @@ func NewUserServiceImpl(userRepository repository.UserRepository, db *sql.DB) Us
 	}
 }
 
-func (userService *UserServiceImpl) Register(ctx context.Context, request web.RegisterUserRequest) domain.User {
-	if request.Password != request.VerifyPassword {
-		err := errors.New("password and verify password not match")
-		helpers.PanicIfError(err)
-	}
-	tx, err :=userService.DB.Begin()
-	helpers.PanicIfError(err)
-	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
-	helpers.PanicIfError(err)
-	user :=userService.UserRepository.Save(ctx, tx, domain.User{
+func (userService *UserServiceImpl) Register(ctx context.Context, request web.RegisterUserRequest) (domain.User, error) {
+	user := domain.User{
 		Name: request.Name,
 		Email: request.Email,
-		Password: string(bytes),
-	})
+	}
+	if request.Password != request.VerifyPassword {
+		return user, errors.New("password and verify password not match") 
+	}
+	tx, err :=userService.DB.Begin()
+	if err != nil {
+		return user, err
+	}
+	bytes, err := bcrypt.GenerateFromPassword([]byte(request.Password), 14)
+	if err != nil {
+		return user, err
+	}
+	user.Password = string(bytes)
+	user, err =userService.UserRepository.Save(ctx, tx, user)
+	if err != nil {
+		return user, err
+	}
 	tx.Commit()
-	return user
+	return user, nil
 }
 
-func (userService *UserServiceImpl) Login(ctx context.Context, request web.LoginUserRequest) string {
+func (userService *UserServiceImpl) Login(ctx context.Context, request web.LoginUserRequest) (string, error) {
 	tx, err := userService.DB.Begin()
-	helpers.PanicIfError(err)
+	if err != nil {
+		return "", err
+	}
 	user, err := userService.UserRepository.FindByEmail(ctx, tx, domain.User{
 		Email: request.Email,
 	})
-	helpers.PanicIfError(err)
+	if err != nil {
+		return "", err
+	}
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password)); err !=nil {
-		err := errors.New("wrong password")
-		helpers.PanicIfError(err)
+		return "", errors.New("wrong password")
+		
 	}
 	token := helpers.CreateJwtToken(user)
-	return token
+	return token, nil
 }
