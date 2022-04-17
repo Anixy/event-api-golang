@@ -20,6 +20,7 @@ func TestCreateJwtToken(t *testing.T) {
 			name: "TEST CREATE TOKEN",
 			args: args{
 				user: domain.User{
+					Id: 1,
 					Name:     "Budi",
 					Email:    "budi@example.com",
 					Password: "secretpassword",
@@ -48,6 +49,7 @@ func TestVerifyJwtToken(t *testing.T) {
 			name: "TEST VALID JWT TOKEN",
 			args: args{
 				tokenString: CreateJwtToken(domain.User{
+					Id: 1,
 					Name:     "Budi",
 					Email:    "budi@example.com",
 					Password: "secretpassword",
@@ -59,6 +61,40 @@ func TestVerifyJwtToken(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			err := VerifyJwtToken(tt.args.tokenString)
 			assert.NoError(t, err)
+		})
+	}
+}
+
+func TestGetJwtClaim(t *testing.T) {
+	user := domain.User{
+		Id: 1,
+		Name:     "Budi",
+		Email:    "budi@example.com",
+		Password: "secretpassword",
+	}
+	type args struct {
+		tokenString string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    domain.User
+		wantErr bool
+	}{
+		{
+			name: "TEST GET JWT CLAIMS",
+			args: args{
+				tokenString: CreateJwtToken(user),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			userRes, err := GetJwtClaim(tt.args.tokenString)
+			assert.NoError(t, err)
+			assert.Equal(t, user.Id, userRes.Id)
+			assert.Equal(t, user.Name, userRes.Name)
+			assert.Equal(t, user.Email, userRes.Email)
 		})
 	}
 }

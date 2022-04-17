@@ -6,7 +6,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/Anixy/event-api-golang/helpers"
 	"github.com/Anixy/event-api-golang/model/domain"
 )
 
@@ -54,12 +53,15 @@ func (userRepository *UserRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx
 }
 
 func (userRepository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, user domain.User) (domain.User, error) {
-	sql := `SELECT id, name, email, password, created_at, updated_at FROM users WHERE id = ? LIMIT 1`
+	sql := `SELECT id, name, email, created_at, updated_at FROM users WHERE id = ? LIMIT 1`
 	rows, err := tx.QueryContext(ctx, sql, user.Id)
-	helpers.PanicIfError(err)
+	if err != nil {
+		return user, err
+	}
+	defer rows.Close()
 
 	if rows.Next() {
-		rows.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		rows.Scan(&user.Id, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
 		return user, nil
 	}else {
 		return user, errors.New("user not found")
@@ -73,6 +75,7 @@ func (userRepository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
 	users := []domain.User{}
 
@@ -88,7 +91,10 @@ func (userRepository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 func (userRepository *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, user domain.User) (domain.User, error) {
 	sql := `SELECT id, name, email, password, created_at, updated_at FROM users WHERE email = ? LIMIT 1`
 	rows, err := tx.QueryContext(ctx, sql, user.Email)
-	helpers.PanicIfError(err)
+	if err != nil {
+		return user, err
+	}
+	defer rows.Close()
 	if rows.Next() {
 		rows.Scan(&user.Id, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		return user, nil

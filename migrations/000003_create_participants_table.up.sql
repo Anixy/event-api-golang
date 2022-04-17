@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS paticipants(
+    id INTEGER AUTO_INCREMENT PRIMARY KEY,
+    event_id INTEGER NOT NULL,
+    user_id INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP NOT NULL,
+    FOREIGN KEY (event_id) REFERENCES events(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+)ENGINE=INNODB;

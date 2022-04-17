@@ -2,27 +2,31 @@ package helpers
 
 import (
 	"errors"
+	"strings"
+	"time"
 
 	"github.com/Anixy/event-api-golang/model/domain"
 	"github.com/golang-jwt/jwt"
 )
 
+type MyCustomClaims struct {
+	User domain.User
+	jwt.StandardClaims
+}
+
 func CreateJwtToken(user domain.User) string {
 	mySigningKey := []byte("secretkey")
 
-	type MyCustomClaims struct {
-		User domain.User
-		jwt.StandardClaims
-	}
-
 	// Create the Claims
+	expiredTime := time.Now().Add(15*time.Minute).Unix()
 	claims := MyCustomClaims{
 		domain.User{
+			Id: user.Id,
 			Name: user.Name,
 			Email: user.Email,
 		},
 		jwt.StandardClaims{
-			ExpiresAt: 60000000000,
+			ExpiresAt: expiredTime,
 		},
 	}
 
@@ -53,4 +57,25 @@ func VerifyJwtToken(tokenString string) error {
 	} else {
 		return err
 	}
+}
+
+func GetJwtClaim(tokenString string) (domain.User, error) {
+	user := domain.User{}
+	claims := MyCustomClaims{}
+	_, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
+		return []byte("secretkey"), nil
+	})
+	if err != nil {
+		return user, nil
+	}
+	return claims.User, nil
+}
+
+func GetJwtTokenFromBearer(bearerToken string) (string, error) {
+	splitBearer := strings.Split(bearerToken, " ")
+	if len(splitBearer) != 2 || splitBearer[0] != "Bearer" {
+		return "", errors.New("not valid bearer token")
+	}
+
+	return splitBearer[1], nil
 }

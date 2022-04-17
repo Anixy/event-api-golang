@@ -3,7 +3,6 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/Anixy/event-api-golang/model/domain"
 	"github.com/Anixy/event-api-golang/model/web"
 	"github.com/Anixy/event-api-golang/services"
 	"github.com/gin-gonic/gin"
@@ -43,7 +42,8 @@ func (userController *UserControllerImpl) Register(c *gin.Context)  {
 	c.JSON(200, web.WebResponse{
 		Code: 200,
 		Status: "OK",
-		Data: domain.User{
+		Data: web.UserResponse{
+			Id: user.Id,
 			Name: user.Name,
 			Email: user.Email,
 		},
