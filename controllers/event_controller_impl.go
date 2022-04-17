@@ -78,3 +78,38 @@ func (eventController *EventControllerImpl) Create(c *gin.Context)  {
 		},
 	})
 }
+
+func (eventController *EventControllerImpl) FindAll(c *gin.Context)  {
+	events, err := eventController.EventService.FindAll(c)
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
+			Code: http.StatusUnprocessableEntity,
+			Status: "UNPROCESSABLE ENTITY",
+			Data: err.Error(),
+		})
+		return
+	}
+	eventsResponses := []web.EventResponse{}
+	for _, event := range events {
+		eventResponses := web.EventResponse{
+			Id: event.Id,
+			Title: event.Title,
+			User: web.UserResponse{
+				Id: event.User.Id,
+				Name: event.User.Name,
+				Email: event.User.Email,
+			},
+			StartDate: event.StartDate,
+			EndDate: event.EndDate,
+			Description: event.Description,
+			Type: event.Type,
+		}
+		eventsResponses = append(eventsResponses, eventResponses)
+	}
+
+	c.JSON(200, web.WebResponse{
+		Code: 200,
+		Status: "OK",
+		Data: eventsResponses,
+	})
+}

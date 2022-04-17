@@ -1,6 +1,8 @@
 package app
 
 import (
+	"net/http"
+
 	"github.com/Anixy/event-api-golang/controllers"
 	"github.com/Anixy/event-api-golang/middleware"
 	"github.com/Anixy/event-api-golang/repository"
@@ -22,6 +24,12 @@ func SetupRouter() *gin.Engine {
 	auth.POST("/login", userController.Login)
 	v1 := r.Group("api/v1")
 	v1.Use(middleware.AuthMiddleware())
-	v1.POST("/event/create", eventController.Create)
+	v1.POST("/event", eventController.Create)
+	v1.GET("/event", eventController.FindAll)
+	v1.PUT("/event/:eventId", func(ctx *gin.Context) {
+		ctx.AbortWithStatusJSON(http.StatusNotImplemented, gin.H{
+			"message": "Not implemented",
+		})
+	})
 	return r
 }

@@ -21,7 +21,7 @@ func GetDBConnection() *sql.DB {
 	helpers.PanicIfError(err)
 	testEnv, err := godotenv.Read(".env")
 	helpers.PanicIfError(err)
-	dbConfig := testEnv["DB_USERNAME"] + ":" + testEnv["DB_PASSWORD"] + "@tcp(" + testEnv["DB_HOST"] + ":" + testEnv["DB_PORT"] + ")/" + testEnv["DB_DATABASE"]
+	dbConfig := testEnv["DB_USERNAME"] + ":" + testEnv["DB_PASSWORD"] + "@tcp(" + testEnv["DB_HOST"] + ":" + testEnv["DB_PORT"] + ")/" + testEnv["DB_DATABASE"]+"?parseTime=true"
 	helpers.PanicIfError(err)
 	db, err := sql.Open(testEnv["DB_CONNECTION"], dbConfig)
 	if err != nil {

@@ -79,7 +79,22 @@ func (eventRepository *EventRepositoryImpl) FindById(ctx context.Context, tx *sq
 }
 
 func (eventRepository *EventRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]domain.Event, error) {
-	sql := `SELECT id, user_id, title, start_date, end_date, description, type, created_at, updated_at FROM events`
+	sql := `SELECT 
+	events.id,
+	events.title,
+	events.start_date, 
+	events.end_date, 
+	events.description, 
+	events.type, 
+	events.created_at, 
+	events.updated_at, 
+	users.id, 
+	users.name, 
+	users.email, 
+	users.password, 
+	users.created_at, 
+	users.updated_at 
+	FROM events INNER JOIN users ON users.id = events.user_id`
 
 	rows, err := tx.QueryContext(ctx, sql)
 	if err != nil {
@@ -93,7 +108,6 @@ func (eventRepository *EventRepositoryImpl) FindAll(ctx context.Context, tx *sql
 		event := domain.Event{}
 		rows.Scan(
 			&event.Id,
-			&event.User.Id, 
 			&event.Title, 
 			&event.StartDate, 
 			&event.EndDate,
@@ -101,6 +115,12 @@ func (eventRepository *EventRepositoryImpl) FindAll(ctx context.Context, tx *sql
 			&event.Type, 
 			&event.CreatedAt, 
 			&event.UpdatedAt,
+			&event.User.Id,
+			&event.User.Name,
+			&event.User.Email,
+			&event.User.Password,
+			&event.User.CreatedAt,
+			&event.User.UpdatedAt,
 		)
 		events = append(events, event)
 	}
@@ -114,9 +134,7 @@ func (eventRepository *EventRepositoryImpl) FindByUserId(ctx context.Context, tx
 		return nil, err
 	}
 	defer rows.Close()
-
 	events := []domain.Event{}
-
 	for rows.Next() {
 		event := domain.Event{}
 		rows.Scan(
