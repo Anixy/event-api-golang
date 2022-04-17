@@ -53,7 +53,22 @@ func (eventRepository *EventRepositoryImpl) Delete(ctx context.Context, tx *sql.
 }
 
 func (eventRepository *EventRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, event domain.Event) (domain.Event, error) {
-	sql := `SELECT id, user_id, title, start_date, end_date, description, type, created_at, updated_at FROM events WHERE id = ? LIMIT 1`
+	sql := `SELECT 
+	events.id,
+	events.title,
+	events.start_date, 
+	events.end_date, 
+	events.description, 
+	events.type, 
+	events.created_at, 
+	events.updated_at, 
+	users.id, 
+	users.name, 
+	users.email, 
+	users.password, 
+	users.created_at, 
+	users.updated_at 
+	FROM events INNER JOIN users ON users.id = events.user_id WHERE events.id = ? LIMIT 1`
 	rows, err := tx.QueryContext(ctx, sql, event.Id)
 	if err != nil {
 		return event, err
@@ -62,19 +77,24 @@ func (eventRepository *EventRepositoryImpl) FindById(ctx context.Context, tx *sq
 
 	if rows.Next() {
 		rows.Scan(
-			&event.Id, 
-			&event.User.Id, 
+			&event.Id,
 			&event.Title, 
 			&event.StartDate, 
-			&event.EndDate, 
-			&event.Description, 
+			&event.EndDate,
+			&event.Description,
 			&event.Type, 
 			&event.CreatedAt, 
 			&event.UpdatedAt,
+			&event.User.Id,
+			&event.User.Name,
+			&event.User.Email,
+			&event.User.Password,
+			&event.User.CreatedAt,
+			&event.User.UpdatedAt,
 		)
 		return event, nil
 	} else {
-		return event, errors.New("user not found")
+		return event, errors.New("event not found")
 	}
 }
 

@@ -23,7 +23,7 @@ func (mt *myTime) UnmarshalJSON(bs []byte) error {
 	return nil
 }
 
-type CreateEventRequest struct {
+type CreateOrUpdateEventRequest struct {
 	Title     	string 		`json:"title" binding:"required"`
 	StartDate 	time.Time	`json:"start_date" binding:"required"`
 	EndDate 	time.Time	`json:"end_date" binding:"required"`
