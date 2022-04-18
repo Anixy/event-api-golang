@@ -103,14 +103,30 @@ func (eventController *EventControllerImpl) Update(c *gin.Context)  {
 
 	event := domain.Event{
 		Id: eventIdInt,
-		User: user,
 	}
 
-	event, err = eventController.EventService.Update(c, eventRequest, event)
+	event, err = eventController.EventService.FindById(c, event)
 	if err != nil {
 		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
+	if event.User.Id != user.Id {
+		helpers.ForbiddenErrorResponse(c, errors.New("forbidden request"))
+		return
+	}
+	event.Title = eventRequest.Title
+	event.StartDate = eventRequest.StartDate
+	event.EndDate = eventRequest.EndDate
+	event.Description = eventRequest.Description
+	event.Type = eventRequest.Type
+
+	event, err = eventController.EventService.Update(c, event)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+
+	
 
 	c.JSON(200, web.WebResponse{
 		Code: 200,
@@ -197,5 +213,104 @@ func (eventController *EventControllerImpl) FindById(c *gin.Context)  {
 			Type: event.Type,
 		},
 		
+	})
+}
+
+func (eventController *EventControllerImpl) Delete(c *gin.Context)  {
+	eventId := c.Params.ByName("eventId")
+	eventIdInt, err := strconv.Atoi(eventId)
+	if err != nil {
+		helpers.BadRequestErrorResponse(c, err)
+		return
+	}
+
+	bearerToken := c.Request.Header["Authorization"][0]
+	jwtToken, err := helpers.GetJwtTokenFromBearer(bearerToken)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	user, err := helpers.GetJwtClaim(jwtToken)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+
+	event := domain.Event{
+		Id: eventIdInt,
+	}
+
+	event, err = eventController.EventService.FindById(c, event)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+
+	if event.User.Id != user.Id {
+		helpers.ForbiddenErrorResponse(c, errors.New("forbidden request"))
+		return
+	}
+
+	event, err = eventController.EventService.Delete(c, event) 
+
+	c.JSON(200, web.WebResponse{
+		Code: 200,
+		Status: "OK",
+		Data: web.EventResponse{
+			Id: event.Id,
+			Title: event.Title,
+			User: web.UserResponse{
+				Id: event.User.Id,
+				Name: event.User.Name,
+				Email: event.User.Email,
+			},
+			StartDate: event.StartDate,
+			EndDate: event.EndDate,
+			Description: event.Description,
+			Type: event.Type,
+		},
+		
+	})
+}
+
+func (eventController *EventControllerImpl) FindByUserId(c *gin.Context)  {
+
+	bearerToken := c.Request.Header["Authorization"][0]
+	jwtToken, err := helpers.GetJwtTokenFromBearer(bearerToken)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	user, err := helpers.GetJwtClaim(jwtToken)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	events, err := eventController.EventService.FindByUserId(c, user)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	eventsResponses := []web.EventResponse{}
+	for _, event := range events {
+		eventResponses := web.EventResponse{
+			Id: event.Id,
+			Title: event.Title,
+			User: web.UserResponse{
+				Id: event.User.Id,
+				Name: event.User.Name,
+				Email: event.User.Email,
+			},
+			StartDate: event.StartDate,
+			EndDate: event.EndDate,
+			Description: event.Description,
+			Type: event.Type,
+		}
+		eventsResponses = append(eventsResponses, eventResponses)
+	}
+	c.JSON(200, web.WebResponse{
+		Code: 200,
+		Status: "OK",
+		Data: eventsResponses,
 	})
 }

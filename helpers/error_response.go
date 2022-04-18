@@ -38,3 +38,19 @@ func UnprocessableEntityErrorResponse(c *gin.Context, err error)  {
 		Data: err.Error(),
 	})
 }
+
+func ForbiddenErrorResponse(c *gin.Context, err error)  {
+	c.AbortWithStatusJSON(http.StatusForbidden, web.WebResponse{
+		Code: http.StatusForbidden,
+		Status: "FORBIDDEN",
+		Data: err.Error(),
+	})
+}
+
+func UnauthorizedErrorResponse(c *gin.Context, err error)  {
+	c.AbortWithStatusJSON(http.StatusUnauthorized, web.WebResponse{
+		Code: http.StatusUnauthorized,
+		Status: "UNAUTHORIZED",
+		Data: err.Error(),
+	})
+}

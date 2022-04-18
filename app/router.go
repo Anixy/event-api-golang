@@ -18,13 +18,15 @@ func SetupRouter() *gin.Engine {
 	eventController := controllers.NewEventControllerImpl(eventService)
 	r := gin.Default()
 	auth := r.Group("api/v1/auth")
-	auth.POST("/register", userController.Register)
-	auth.POST("/login", userController.Login)
 	v1 := r.Group("api/v1")
 	v1.Use(middleware.AuthMiddleware())
+	auth.POST("/register", userController.Register)
+	auth.POST("/login", userController.Login)
 	v1.POST("/event", eventController.Create)
 	v1.GET("/event", eventController.FindAll)
 	v1.GET("/event/:eventId", eventController.FindById)
 	v1.PUT("/event/:eventId", eventController.Update)
+	v1.DELETE("/event/:eventId", eventController.Delete)
+	v1.GET("/event/my-event", eventController.FindByUserId)
 	return r
 }

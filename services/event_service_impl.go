@@ -3,7 +3,6 @@ package services
 import (
 	"context"
 	"database/sql"
-	"errors"
 
 	"github.com/Anixy/event-api-golang/model/domain"
 	"github.com/Anixy/event-api-golang/model/web"
@@ -51,26 +50,12 @@ func (eventService *EventServiceImpl) Create(ctx context.Context, request web.Cr
 	return event, nil
 }
 
-func (eventService *EventServiceImpl) Update(ctx context.Context, request web.CreateOrUpdateEventRequest, eventRequest domain.Event) (domain.Event, error) {
+func (eventService *EventServiceImpl) Update(ctx context.Context, event domain.Event) (domain.Event, error) {
 	tx, err := eventService.DB.Begin()
-	eventRequest.Title = request.Title
-	eventRequest.StartDate = request.StartDate
-	eventRequest.EndDate = request.EndDate
-	eventRequest.Description = request.Description
-	eventRequest.Type = request.Type
 	if err != nil {
-		return eventRequest, err
-	}
-	event, err := eventService.EventRepository.FindById(ctx, tx, eventRequest)
-	if err != nil {
-		tx.Rollback()
 		return event, err
 	}
-	if event.User.Id != eventRequest.User.Id {
-		tx.Rollback()
-		return event, errors.New("not allowed request")
-	}
-	event, err = eventService.EventRepository.Update(ctx, tx, eventRequest)
+	event, err = eventService.EventRepository.Update(ctx, tx, event)
 	if err != nil {
 		tx.Rollback()
 		return event, err
@@ -106,3 +91,33 @@ func (eventService *EventServiceImpl) FindById(ctx context.Context, event domain
 	tx.Commit()
 	return events, nil
 }
+
+func (eventService *EventServiceImpl) Delete(ctx context.Context, event domain.Event) (domain.Event, error) {
+	tx, err := eventService.DB.Begin()
+	if err != nil {
+		return event, err
+	}
+	events, err := eventService.EventRepository.Delete(ctx, tx, event)
+	if err != nil {
+		tx.Rollback()
+		return events, err
+	}
+	tx.Commit()
+	return events, nil
+}
+
+func (eventService *EventServiceImpl) FindByUserId(ctx context.Context, user domain.User) ([]domain.Event, error) {
+	tx, err := eventService.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+	events, err := eventService.EventRepository.FindByUserId(ctx, tx, user)
+	if err != nil {
+		tx.Rollback()
+		return events, err
+	}
+	tx.Commit()
+	return events, nil
+}
+
+
