@@ -40,9 +40,14 @@ func (userService *UserServiceImpl) Register(ctx context.Context, request web.Re
 	if err != nil {
 		return user, err
 	}
+	// user, err = userService.UserRepository.FindByEmail(ctx, tx, user)
+	// if err == nil {
+	// 	return user, errors.New("email already exists")
+	// }
 	user.Password = string(bytes)
 	user, err =userService.UserRepository.Save(ctx, tx, user)
 	if err != nil {
+		tx.Rollback()
 		return user, err
 	}
 	tx.Commit()
