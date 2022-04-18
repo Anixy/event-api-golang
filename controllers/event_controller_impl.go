@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"net/http"
+	"errors"
 	"strconv"
 
 	"github.com/Anixy/event-api-golang/helpers"
@@ -9,6 +9,7 @@ import (
 	"github.com/Anixy/event-api-golang/model/web"
 	"github.com/Anixy/event-api-golang/services"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type EventControllerImpl struct {
@@ -25,40 +26,29 @@ func (eventController *EventControllerImpl) Create(c *gin.Context)  {
 	bearerToken := c.Request.Header["Authorization"][0]
 	jwtToken, err := helpers.GetJwtTokenFromBearer(bearerToken)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 	user, err := helpers.GetJwtClaim(jwtToken)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 	eventRequest := web.CreateOrUpdateEventRequest{}
 	err = c.ShouldBind(&eventRequest)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, web.WebResponse{
-			Code: http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data: err.Error(),
-		})
+		var ValidationError validator.ValidationErrors
+		if errors.As(err, &ValidationError) {
+			helpers.ValidationErrorResponse(c, ValidationError)
+			return
+		}
+		helpers.BadRequestErrorResponse(c, err)
 		return
 	}
 
 	event, err := eventController.EventService.Create(c, eventRequest, user)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 
@@ -85,40 +75,29 @@ func (eventController *EventControllerImpl) Update(c *gin.Context)  {
 	eventId := c.Params.ByName("eventId")
 	eventIdInt, err := strconv.Atoi(eventId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, web.WebResponse{
-			Code: http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data: err.Error(),
-		})
+		helpers.BadRequestErrorResponse(c, err)
 		return
 	}
 	bearerToken := c.Request.Header["Authorization"][0]
 	jwtToken, err := helpers.GetJwtTokenFromBearer(bearerToken)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 	user, err := helpers.GetJwtClaim(jwtToken)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 	eventRequest := web.CreateOrUpdateEventRequest{}
 	err = c.ShouldBind(&eventRequest)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, web.WebResponse{
-			Code: http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data: err.Error(),
-		})
+		var ValidationError validator.ValidationErrors
+		if errors.As(err, &ValidationError) {
+			helpers.ValidationErrorResponse(c, ValidationError)
+			return
+		}
+		helpers.BadRequestErrorResponse(c, err)
 		return
 	}
 
@@ -129,11 +108,7 @@ func (eventController *EventControllerImpl) Update(c *gin.Context)  {
 
 	event, err = eventController.EventService.Update(c, eventRequest, event)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 
@@ -159,11 +134,7 @@ func (eventController *EventControllerImpl) Update(c *gin.Context)  {
 func (eventController *EventControllerImpl) FindAll(c *gin.Context)  {
 	events, err := eventController.EventService.FindAll(c)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 	eventsResponses := []web.EventResponse{}
@@ -195,11 +166,7 @@ func (eventController *EventControllerImpl) FindById(c *gin.Context)  {
 	eventId := c.Params.ByName("eventId")
 	eventIdInt, err := strconv.Atoi(eventId)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, web.WebResponse{
-			Code: http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data: err.Error(),
-		})
+		helpers.BadRequestErrorResponse(c, err)
 		return
 	}
 
@@ -209,11 +176,7 @@ func (eventController *EventControllerImpl) FindById(c *gin.Context)  {
 
 	event, err = eventController.EventService.FindById(c, event)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 

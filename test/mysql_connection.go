@@ -3,28 +3,19 @@ package test
 import (
 	"database/sql"
 	"log"
-	"strings"
+	"os"
 
 	_ "embed"
 
-	"github.com/Anixy/event-api-golang/helpers"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate"
 	"github.com/golang-migrate/migrate/database/mysql"
 	_ "github.com/golang-migrate/migrate/source/file"
-	"github.com/joho/godotenv"
 )
 
-//go:embed test.env
-var env string
-
 func ConnectToDB() *sql.DB {
-	envReader := strings.NewReader(env)
-	testEnv, err := godotenv.Parse(envReader)
-	helpers.PanicIfError(err)
-	dbConfig := testEnv["DB_USERNAME"] + ":" + testEnv["DB_PASSWORD"] + "@tcp(" + testEnv["DB_HOST"] + ":" + testEnv["DB_PORT"] + ")/" + testEnv["DB_DATABASE"]
-	helpers.PanicIfError(err)
-	db, err := sql.Open(testEnv["DB_CONNECTION"], dbConfig)
+	dbConfig := os.Getenv("DB_USERNAME_TEST") + ":" + os.Getenv("DB_PASSWORD_TEST") + "@tcp(" + os.Getenv("DB_HOST_TEST") + ":" + os.Getenv("DB_PORT_TEST") + ")/" + os.Getenv("DB_DATABASE_TEST")
+	db, err := sql.Open(os.Getenv("DB_CONNECTION_TEST"), dbConfig)
 	if err != nil {
 		log.Panic(err)
 	}

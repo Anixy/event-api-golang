@@ -2,6 +2,7 @@ package helpers
 
 import (
 	"errors"
+	"os"
 	"strings"
 	"time"
 
@@ -15,7 +16,6 @@ type MyCustomClaims struct {
 }
 
 func CreateJwtToken(user domain.User) string {
-	mySigningKey := []byte("secretkey")
 
 	// Create the Claims
 	expiredTime := time.Now().Add(15*time.Minute).Unix()
@@ -31,7 +31,7 @@ func CreateJwtToken(user domain.User) string {
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	ss, err := token.SignedString(mySigningKey)
+	ss, err := token.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
 	PanicIfError(err)
 	return ss
 }
@@ -40,8 +40,11 @@ func VerifyJwtToken(tokenString string) error {
 	// Token from another example.  This token is expired
 
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		return []byte("secretkey"), nil
+		return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 	})
+	if err != nil {
+		return err
+	}
 
 	if token.Valid {
 		return nil
@@ -63,7 +66,7 @@ func GetJwtClaim(tokenString string) (domain.User, error) {
 	user := domain.User{}
 	claims := MyCustomClaims{}
 	_, err := jwt.ParseWithClaims(tokenString, &claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte("secretkey"), nil
+		return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 	})
 	if err != nil {
 		return user, nil

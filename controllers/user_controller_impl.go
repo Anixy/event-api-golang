@@ -1,11 +1,13 @@
 package controllers
 
 import (
-	"net/http"
+	"errors"
 
+	"github.com/Anixy/event-api-golang/helpers"
 	"github.com/Anixy/event-api-golang/model/web"
 	"github.com/Anixy/event-api-golang/services"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 )
 
 type UserControllerImpl struct {
@@ -23,20 +25,17 @@ func (userController *UserControllerImpl) Register(c *gin.Context)  {
 	userRequest := web.RegisterUserRequest{}
 	err := c.ShouldBind(&userRequest)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, web.WebResponse{
-			Code: http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data: err.Error(),
-		})
+		var ValidationError validator.ValidationErrors
+		if errors.As(err, &ValidationError) {
+			helpers.ValidationErrorResponse(c, ValidationError)
+			return
+		}
+		helpers.BadRequestErrorResponse(c, err)
 		return
 	}
 	user, err := userController.userService.Register(c, userRequest)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnprocessableEntity, web.WebResponse{
-			Code: http.StatusUnprocessableEntity,
-			Status: "UNPROCESSABLE ENTITY",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 	c.JSON(200, web.WebResponse{
@@ -54,20 +53,17 @@ func (userController *UserControllerImpl) Login(c *gin.Context)  {
 	userRequest := web.LoginUserRequest{}
 	err := c.ShouldBind(&userRequest)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, web.WebResponse{
-			Code: http.StatusBadRequest,
-			Status: "BAD REQUEST",
-			Data: err.Error(),
-		})
+		var ValidationError validator.ValidationErrors
+		if errors.As(err, &ValidationError) {
+			helpers.ValidationErrorResponse(c, ValidationError)
+			return
+		}
+		helpers.BadRequestErrorResponse(c, err)
 		return
 	}
 	token, err := userController.userService.Login(c, userRequest)
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusUnauthorized, web.WebResponse{
-			Code: http.StatusUnauthorized,
-			Status: "UNAUTHORIZED",
-			Data: err.Error(),
-		})
+		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
 	c.JSON(200, web.WebResponse{
