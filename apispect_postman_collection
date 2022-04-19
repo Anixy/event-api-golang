@@ -1,0 +1,579 @@
+{
+	"info": {
+		"_postman_id": "76a1810f-a56f-46c6-b1f5-20c9218d69d9",
+		"name": "EVENT GOLANG API",
+		"description": "API documentation for my little project [EVENT](https://github.com/Anixy/event-api-golang)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "AUTH",
+			"item": [
+				{
+					"name": "REGISTER",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Aniq\",\r\n    \"email\": \"aniq@gmail.com\",\r\n    \"password\": \"secretpassword\",\r\n    \"verify_password\": \"secretpassword\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/auth/register",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "REGISTER",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"name\": \"Aniq\",\r\n    \"email\": \"aniq@gmail.com\",\r\n    \"password\": \"secretpassword\",\r\n    \"verify_password\": \"secretpassword\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/register",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"register"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 18 Apr 2022 01:21:20 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "81"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"status\": \"OK\",\n    \"data\": {\n        \"id\": 7,\n        \"name\": \"Aniq\",\n        \"email\": \"aniq@gmail.com\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "LOGIN",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/auth/login",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "LOGIN",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"email\": \"aniq@gmail.com\",\r\n    \"password\": \"secretpassword\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/auth/login",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"auth",
+										"login"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 18 Apr 2022 02:04:25 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "327"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"status\": \"OK\",\n    \"data\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyIjp7IklkIjo3LCJOYW1lIjoiQW5pcSIsIkVtYWlsIjoiYW5pcUBnbWFpbC5jb20iLCJQYXNzd29yZCI6IiIsIkNyZWF0ZWRBdCI6IjAwMDEtMDEtMDFUMDA6MDA6MDBaIiwiVXBkYXRlZEF0IjoiMDAwMS0wMS0wMVQwMDowMDowMFoifSwiZXhwIjoxNjUwMjQ4MzY1fQ.Q-XIPh0r-bysBZ0xWS9fIUeuQ92S11qMWBy7g-xWSVU\"\n}"
+						}
+					]
+				}
+			],
+			"description": "API for AUTHENTICATION"
+		},
+		{
+			"name": "EVENT",
+			"item": [
+				{
+					"name": "GET LIST EVENT",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/event",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"event"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "GET LIST EVENT",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/event",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 18 Apr 2022 02:05:14 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "735"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"status\": \"OK\",\n    \"data\": [\n        {\n            \"id\": 5,\n            \"title\": \"Belajar bareng budi\",\n            \"user\": {\n                \"id\": 6,\n                \"name\": \"budi\",\n                \"email\": \"budi@gmail.com\"\n            },\n            \"start_date\": \"2022-04-22T14:09:30Z\",\n            \"end_date\": \"2022-04-22T14:11:30Z\",\n            \"description\": \"event belajar bareng docker\",\n            \"type\": \"online\"\n        },\n        {\n            \"id\": 6,\n            \"title\": \"Belajar bareng budi part 2\",\n            \"user\": {\n                \"id\": 6,\n                \"name\": \"budi\",\n                \"email\": \"budi@gmail.com\"\n            },\n            \"start_date\": \"2022-04-22T14:09:30Z\",\n            \"end_date\": \"2022-04-22T14:11:30Z\",\n            \"description\": \"event belajar bareng docker part 2\",\n            \"type\": \"online\"\n        },\n        {\n            \"id\": 7,\n            \"title\": \"Belajar bareng budi part 4\",\n            \"user\": {\n                \"id\": 6,\n                \"name\": \"budi\",\n                \"email\": \"budi@gmail.com\"\n            },\n            \"start_date\": \"2022-04-22T14:09:30Z\",\n            \"end_date\": \"2022-04-22T14:11:30Z\",\n            \"description\": \"event belajar bareng docker part 3\",\n            \"type\": \"online\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "CREATE EVENT",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"title\": \"event pertama\",\r\n    \"start_date\": \"2022-04-22T07:00:00Z\",\r\n    \"end_date\": \"2022-04-22T09:30:00Z\",\r\n    \"description\": \"\",\r\n    \"type\": \"online\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}/api/v1/event",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"event"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "CREATE EVENT",
+							"originalRequest": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"title\": \"event pertama\",\r\n    \"start_date\": \"2022-04-22T07:00:00Z\",\r\n    \"end_date\": \"2022-04-22T09:30:00Z\",\r\n    \"description\": \"belajar bareng golang\",\r\n    \"type\": \"online\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/event",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 18 Apr 2022 02:15:21 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "245"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"status\": \"OK\",\n    \"data\": {\n        \"id\": 8,\n        \"title\": \"event pertama\",\n        \"user\": {\n            \"id\": 7,\n            \"name\": \"Aniq\",\n            \"email\": \"aniq@gmail.com\"\n        },\n        \"start_date\": \"2022-04-22T07:00:00Z\",\n        \"end_date\": \"2022-04-22T09:30:00Z\",\n        \"description\": \"belajar bareng golang\",\n        \"type\": \"online\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "UPDATE EVENT",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/event/1",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"event",
+								"1"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "UPDATE EVENT",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n    \"title\": \"event pertama updated\",\r\n    \"start_date\": \"2022-04-22T07:00:00Z\",\r\n    \"end_date\": \"2022-04-22T09:30:00Z\",\r\n    \"description\": \"belajar bareng golang updated\",\r\n    \"type\": \"online\"\r\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{url}}/api/v1/event/1",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 18 Apr 2022 13:04:20 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "261"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"status\": \"OK\",\n    \"data\": {\n        \"id\": 1,\n        \"title\": \"event pertama updated\",\n        \"user\": {\n            \"id\": 1,\n            \"name\": \"Aniq\",\n            \"email\": \"aniq@gmail.com\"\n        },\n        \"start_date\": \"2022-04-22T07:00:00Z\",\n        \"end_date\": \"2022-04-22T09:30:00Z\",\n        \"description\": \"belajar bareng golang updated\",\n        \"type\": \"online\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "GET EVENT BY ID",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": [
+						{
+							"name": "GET EVENT BY ID",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/event/1",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 18 Apr 2022 13:05:04 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "261"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"status\": \"OK\",\n    \"data\": {\n        \"id\": 1,\n        \"title\": \"event pertama updated\",\n        \"user\": {\n            \"id\": 1,\n            \"name\": \"Aniq\",\n            \"email\": \"aniq@gmail.com\"\n        },\n        \"start_date\": \"2022-04-22T07:00:00Z\",\n        \"end_date\": \"2022-04-22T09:30:00Z\",\n        \"description\": \"belajar bareng golang updated\",\n        \"type\": \"online\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "DELETE EVENT BY ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/event/2",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"event",
+								"2"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "DELETE EVENT BY ID",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/event/2",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"2"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 18 Apr 2022 13:45:35 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "257"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"status\": \"OK\",\n    \"data\": {\n        \"id\": 2,\n        \"title\": \"event kedua updated\",\n        \"user\": {\n            \"id\": 1,\n            \"name\": \"Aniq\",\n            \"email\": \"aniq@gmail.com\"\n        },\n        \"start_date\": \"2022-04-22T07:00:00Z\",\n        \"end_date\": \"2022-04-22T09:30:00Z\",\n        \"description\": \"belajar bareng java updated\",\n        \"type\": \"online\"\n    }\n}"
+						}
+					]
+				},
+				{
+					"name": "GET MY EVENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}/api/v1/event/my-event",
+							"host": [
+								"{{url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"event",
+								"my-event"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "GET MY EVENT",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{url}}/api/v1/event/my-event",
+									"host": [
+										"{{url}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"event",
+										"my-event"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Date",
+									"value": "Mon, 18 Apr 2022 14:23:18 GMT"
+								},
+								{
+									"key": "Content-Length",
+									"value": "457"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"code\": 200,\n    \"status\": \"OK\",\n    \"data\": [\n        {\n            \"id\": 4,\n            \"title\": \"event pertama\",\n            \"user\": {\n                \"id\": 5,\n                \"name\": \"Aniq1\",\n                \"email\": \"aniq1@gmail.com\"\n            },\n            \"start_date\": \"2022-04-22T07:00:00Z\",\n            \"end_date\": \"2022-04-22T09:30:00Z\",\n            \"description\": \"belajar bareng java\",\n            \"type\": \"online\"\n        },\n        {\n            \"id\": 5,\n            \"title\": \"event kedua\",\n            \"user\": {\n                \"id\": 5,\n                \"name\": \"Aniq1\",\n                \"email\": \"aniq1@gmail.com\"\n            },\n            \"start_date\": \"2022-04-22T07:00:00Z\",\n            \"end_date\": \"2022-04-22T09:30:00Z\",\n            \"description\": \"belajar bareng java\",\n            \"type\": \"online\"\n        }\n    ]\n}"
+						}
+					]
+				},
+				{
+					"name": "REGISTER TO EVENT",
+					"request": {
+						"method": "GET",
+						"header": []
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

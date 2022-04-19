@@ -11,10 +11,11 @@ import (
 func SetupRouter() *gin.Engine {
 	db := GetDBConnection()
 	userRepository := repository.NewUserRepositoryImpl()
-	userService := services.NewUserServiceImpl(userRepository, db)
-	userController := controllers.NewUserControllerImpl(userService)
 	eventRepository := repository.NewEventRepositoryImpl()
-	eventService := services.NewEventServiceImpl(eventRepository, userRepository, db)
+	participantRepository := repository.NewParticipantRepositoryImpl()
+	userService := services.NewUserServiceImpl(userRepository, db)
+	eventService := services.NewEventServiceImpl(eventRepository, userRepository, participantRepository, db)
+	userController := controllers.NewUserControllerImpl(userService)
 	eventController := controllers.NewEventControllerImpl(eventService)
 	r := gin.Default()
 	auth := r.Group("api/v1/auth")
@@ -28,5 +29,6 @@ func SetupRouter() *gin.Engine {
 	v1.PUT("/event/:eventId", eventController.Update)
 	v1.DELETE("/event/:eventId", eventController.Delete)
 	v1.GET("/event/my-event", eventController.FindByUserId)
+	v1.POST("/event/register/:eventId", eventController.RegisterParticipant)
 	return r
 }

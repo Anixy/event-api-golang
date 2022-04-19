@@ -252,6 +252,10 @@ func (eventController *EventControllerImpl) Delete(c *gin.Context)  {
 	}
 
 	event, err = eventController.EventService.Delete(c, event) 
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
 
 	c.JSON(200, web.WebResponse{
 		Code: 200,
@@ -312,5 +316,60 @@ func (eventController *EventControllerImpl) FindByUserId(c *gin.Context)  {
 		Code: 200,
 		Status: "OK",
 		Data: eventsResponses,
+	})
+}
+
+func (eventController *EventControllerImpl) RegisterParticipant(c *gin.Context)  {
+	eventId := c.Params.ByName("eventId")
+	eventIdInt, err := strconv.Atoi(eventId)
+	if err != nil {
+		helpers.BadRequestErrorResponse(c, err)
+		return
+	}
+	bearerToken := c.Request.Header["Authorization"][0]
+	jwtToken, err := helpers.GetJwtTokenFromBearer(bearerToken)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	user, err := helpers.GetJwtClaim(jwtToken)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	participant := domain.Participant{
+		User: user,
+		Event: domain.Event{
+			Id: eventIdInt,
+		},
+	}
+	participant, err = eventController.EventService.RegisterParticipant(c, participant)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	c.JSON(200, web.WebResponse{
+		Code: 200,
+		Status: "OK",
+		Data: web.ParticipantResponse{
+			User: web.UserResponse{
+				Id: participant.User.Id,
+				Name: participant.User.Name,
+				Email: participant.User.Email,
+			},
+			Event: web.EventResponse{
+				Id: participant.Event.Id,
+				Title: participant.Event.Title,
+				StartDate: participant.Event.StartDate,
+				EndDate: participant.Event.EndDate,
+				Description: participant.Event.Description,
+				Type: participant.Event.Type,
+				User: web.UserResponse{
+					Id: participant.Event.User.Id,
+					Name: participant.Event.User.Name,
+					Email: participant.Event.User.Email,
+				},
+			},
+		},
 	})
 }

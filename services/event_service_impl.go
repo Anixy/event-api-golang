@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/Anixy/event-api-golang/model/domain"
 	"github.com/Anixy/event-api-golang/model/web"
@@ -12,13 +13,15 @@ import (
 type EventServiceImpl struct {
 	EventRepository repository.EventRepository
 	UserRepository repository.UserRepository
+	ParticipantRepository repository.ParticipantRepository
 	DB *sql.DB
 }
 
-func NewEventServiceImpl(evenRepository repository.EventRepository, userRepository repository.UserRepository, db *sql.DB) EventService {
+func NewEventServiceImpl(evenRepository repository.EventRepository, userRepository repository.UserRepository, participantRepository repository.ParticipantRepository, db *sql.DB) EventService {
 	return &EventServiceImpl{
 		EventRepository: evenRepository,
 		UserRepository: userRepository,
+		ParticipantRepository: participantRepository,
 		DB: db,
 	}
 }
@@ -118,6 +121,45 @@ func (eventService *EventServiceImpl) FindByUserId(ctx context.Context, user dom
 	}
 	tx.Commit()
 	return events, nil
+}
+
+func (eventService *EventServiceImpl) RegisterParticipant(ctx context.Context, participant domain.Participant) (domain.Participant, error) {
+	tx, err := eventService.DB.Begin()
+	if err != nil {
+		return participant, err
+	}
+	user, err := eventService.UserRepository.FindById(ctx, tx, participant.User)
+	if err != nil {
+		tx.Rollback()
+		return participant, err
+	}
+	participant.User = user
+	event, err := eventService.EventRepository.FindById(ctx, tx, participant.Event)
+	if err != nil {
+		tx.Rollback()
+		return participant, err
+	}
+	participant.Event = event
+	if participant.User.Id == participant.Event.User.Id {
+		tx.Rollback()
+		return participant, errors.New("cannot register to your event")
+	}
+	_, err = eventService.ParticipantRepository.FindByUserIdAndEventId(ctx, tx, participant.User, participant.Event)
+	if err == nil{
+		tx.Rollback()
+		return participant, errors.New("you already registered in this event")
+	}
+	if err != nil && err.Error() != "participant not found" {
+		tx.Rollback()
+		return participant, err
+	}
+	participant, err = eventService.ParticipantRepository.Save(ctx, tx, participant)
+	if err != nil {
+		tx.Rollback()
+		return participant, err
+	}
+	tx.Commit()
+	return participant, nil
 }
 
 
