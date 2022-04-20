@@ -6,5 +6,6 @@ import (
 
 type UserController interface {
 	Register(c *gin.Context)
-	Login(c *gin.Context) 
+	Login(c *gin.Context)
+	RefreshToken(c *gin.Context)
 }

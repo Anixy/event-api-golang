@@ -66,9 +66,49 @@ func (userController *UserControllerImpl) Login(c *gin.Context)  {
 		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
+	refreshToken, err := helpers.CreateRefreshToken(token)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
 	c.JSON(200, web.WebResponse{
 		Code: 200,
 		Status: "OK",
-		Data: token,
+		Data: web.LoginUserResponse{
+			Token: token,
+			RefreshToken: refreshToken,
+		},
+	})
+}
+
+func (userController *UserControllerImpl) RefreshToken(c *gin.Context)  {
+	userRequest := web.RefreshTokenRequest{}
+	err := c.ShouldBind(&userRequest)
+	if err != nil {
+		var ValidationError validator.ValidationErrors
+		if errors.As(err, &ValidationError) {
+			helpers.ValidationErrorResponse(c, ValidationError)
+			return
+		}
+		helpers.BadRequestErrorResponse(c, err)
+		return
+	}
+	user, err := helpers.ValidateRefreshToken(userRequest.RefreshToken)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	token := helpers.CreateJwtToken(user)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+	c.JSON(200, web.WebResponse{
+		Code: 200,
+		Status: "OK",
+		Data: web.LoginUserResponse{
+			Token: token,
+			RefreshToken: userRequest.RefreshToken,
+		},
 	})
 }

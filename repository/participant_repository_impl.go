@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/Anixy/event-api-golang/model/domain"
@@ -80,7 +81,7 @@ func (participantRepository *ParticipantRepositoryImpl) FindById(ctx context.Con
 	FROM participants 
 	INNER JOIN users ON users.id = participants.user_id
 	INNER JOIN events ON events.id = participants.event_id
-    INNER JOIN users eventuser ON users.id = events.user_id
+    INNER JOIN users eventuser ON eventuser.id = events.user_id
 	WHERE id = ? 
 	LIMIT 1`
 	rows, err := tx.QueryContext(ctx, sql, participant.Id)
@@ -149,7 +150,7 @@ func (participantRepository *ParticipantRepositoryImpl) FindAll(ctx context.Cont
 	FROM participants 
 	INNER JOIN users ON users.id = participants.user_id
 	INNER JOIN events ON events.id = participants.event_id
-    INNER JOIN users eventuser ON users.id = events.user_id`
+    INNER JOIN users eventuser ON eventuser.id = events.user_id`
 
 	rows, err := tx.QueryContext(ctx, sql)
 	if err != nil {
@@ -219,7 +220,7 @@ func (participantRepository *ParticipantRepositoryImpl) FindByUserId(ctx context
 	FROM participants 
 	INNER JOIN users ON users.id = participants.user_id
 	INNER JOIN events ON events.id = participants.event_id
-    INNER JOIN users eventuser ON users.id = events.user_id
+    INNER JOIN users eventuser ON eventuser.id = events.user_id
 	WHERE user_id = ? 
 	LIMIT 1`
 	rows, err := tx.QueryContext(ctx, sql, user.Id)
@@ -264,6 +265,7 @@ func (participantRepository *ParticipantRepositoryImpl) FindByUserId(ctx context
 func (participantRepository *ParticipantRepositoryImpl) FindByEventId(ctx context.Context, tx *sql.Tx, event domain.Event) ([]domain.Participant, error) {
 	sql := `SELECT 
 	participants.id, 
+	participants.event_id,
 	participants.created_at, 
 	participants.updated_at,
 	users.id, 
@@ -271,27 +273,10 @@ func (participantRepository *ParticipantRepositoryImpl) FindByEventId(ctx contex
 	users.email, 
 	users.password, 
 	users.created_at, 
-	users.updated_at,
-	events.id,
-	events.title,
-	events.start_date, 
-	events.end_date, 
-	events.description, 
-	events.type, 
-	events.created_at, 
-	events.updated_at, 
-    eventuser.id, 
-	eventuser.name, 
-	eventuser.email, 
-	eventuser.password, 
-	eventuser.created_at, 
-	eventuser.updated_at
+	users.updated_at
 	FROM participants 
 	INNER JOIN users ON users.id = participants.user_id
-	INNER JOIN events ON events.id = participants.event_id
-    INNER JOIN users eventuser ON users.id = events.user_id
-	WHERE event_id = ? 
-	LIMIT 1`
+	WHERE event_id = ?`
 	rows, err := tx.QueryContext(ctx, sql, event.Id)
 	if err != nil {
 		return nil, err
@@ -303,6 +288,7 @@ func (participantRepository *ParticipantRepositoryImpl) FindByEventId(ctx contex
 		participant := domain.Participant{}
 		rows.Scan(
 			&participant.Id,
+			&participant.Event.Id,
 			&participant.CreatedAt,
 			&participant.UpdatedAt,
 			&participant.User.Id,
@@ -311,23 +297,10 @@ func (participantRepository *ParticipantRepositoryImpl) FindByEventId(ctx contex
 			&participant.User.Password,
 			&participant.User.CreatedAt,
 			&participant.User.UpdatedAt,
-			&participant.Event.Id,
-			&participant.Event.Title, 
-			&participant.Event.StartDate, 
-			&participant.Event.EndDate,
-			&participant.Event.Description,
-			&participant.Event.Type, 
-			&participant.Event.CreatedAt, 
-			&participant.Event.UpdatedAt,
-			&participant.Event.User.Id,
-			&participant.Event.User.Name,
-			&participant.Event.User.Email,
-			&participant.Event.User.Password,
-			&participant.Event.User.CreatedAt,
-			&participant.Event.User.UpdatedAt,
 		)
 		participants = append(participants, participant)
 	}
+	fmt.Println(participants)
 	return participants, nil
 }
 

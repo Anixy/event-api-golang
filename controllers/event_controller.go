@@ -10,4 +10,5 @@ type EventController interface {
 	FindById(c *gin.Context)
 	FindByUserId(c *gin.Context)
 	RegisterParticipant(c *gin.Context)
+	FindParticipantByEventId(c *gin.Context)
 }

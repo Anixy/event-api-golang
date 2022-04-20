@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"strings"
@@ -11,13 +12,11 @@ import (
 )
 
 type MyCustomClaims struct {
-	User domain.User
+	User domain.User	`json:"user"`
 	jwt.StandardClaims
 }
 
 func CreateJwtToken(user domain.User) string {
-
-	// Create the Claims
 	expiredTime := time.Now().Add(15*time.Minute).Unix()
 	claims := MyCustomClaims{
 		domain.User{
@@ -37,29 +36,13 @@ func CreateJwtToken(user domain.User) string {
 }
 
 func VerifyJwtToken(tokenString string) error {
-	// Token from another example.  This token is expired
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+	_, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		return []byte(os.Getenv("JWT_SECRET_KEY")), nil
 	})
 	if err != nil {
 		return err
 	}
-
-	if token.Valid {
-		return nil
-	} else if ve, ok := err.(*jwt.ValidationError); ok {
-		if ve.Errors&jwt.ValidationErrorMalformed != 0 {
-			return errors.New("that's not even a token")
-		} else if ve.Errors&(jwt.ValidationErrorExpired|jwt.ValidationErrorNotValidYet) != 0 {
-			// Token is either expired or not active yet
-			return errors.New("timing is everything")
-		} else {
-			return err
-		}
-	} else {
-		return err
-	}
+	return nil
 }
 
 func GetJwtClaim(tokenString string) (domain.User, error) {
@@ -81,4 +64,51 @@ func GetJwtTokenFromBearer(bearerToken string) (string, error) {
 	}
 
 	return splitBearer[1], nil
+}
+
+func CreateRefreshToken(token string) (string, error) {
+	expired := time.Now().Add(time.Hour * 24).Unix()
+	claims := jwt.MapClaims{
+		"token": token,
+		"exp": expired,
+	}
+	refreshToken := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token, err := refreshToken.SignedString([]byte(os.Getenv("SECRET_KEY")))
+	if err != nil {
+		return token, err
+	}
+	return token, nil
+}
+
+func ValidateRefreshToken(refreshToken string) (domain.User, error) {
+	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("SECRET_KEY")), nil
+	})
+	user := domain.User{}
+	if err != nil {
+		return user, err
+	}
+	payload, ok := token.Claims.(jwt.MapClaims)
+	if !(ok && token.Valid) {
+		return user, errors.New("invalid token")
+	}
+	claims := jwt.MapClaims{}
+	parser := jwt.Parser{}
+	token, _, err = parser.ParseUnverified(payload["token"].(string), claims)
+	if err != nil {
+		return user, err
+	}
+	payload, ok = token.Claims.(jwt.MapClaims)
+	if !ok {
+		return user, errors.New("invalid token")
+	}
+	bytes, err :=json.Marshal(payload["user"])
+	if err != nil {
+		return user, err
+	}
+	err = json.Unmarshal(bytes, &user)
+	if err != nil {
+		return user, err
+	}
+	return user, nil
 }

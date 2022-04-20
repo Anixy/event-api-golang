@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"errors"
+	"net/http"
 	"strconv"
 
 	"github.com/Anixy/event-api-golang/helpers"
@@ -100,34 +101,11 @@ func (eventController *EventControllerImpl) Update(c *gin.Context)  {
 		helpers.BadRequestErrorResponse(c, err)
 		return
 	}
-
-	event := domain.Event{
-		Id: eventIdInt,
-	}
-
-	event, err = eventController.EventService.FindById(c, event)
+	event, err := eventController.EventService.Update(c, eventRequest, eventIdInt, user)
 	if err != nil {
 		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
-	if event.User.Id != user.Id {
-		helpers.ForbiddenErrorResponse(c, errors.New("forbidden request"))
-		return
-	}
-	event.Title = eventRequest.Title
-	event.StartDate = eventRequest.StartDate
-	event.EndDate = eventRequest.EndDate
-	event.Description = eventRequest.Description
-	event.Type = eventRequest.Type
-
-	event, err = eventController.EventService.Update(c, event)
-	if err != nil {
-		helpers.UnprocessableEntityErrorResponse(c, err)
-		return
-	}
-
-	
-
 	c.JSON(200, web.WebResponse{
 		Code: 200,
 		Status: "OK",
@@ -235,23 +213,7 @@ func (eventController *EventControllerImpl) Delete(c *gin.Context)  {
 		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
 	}
-
-	event := domain.Event{
-		Id: eventIdInt,
-	}
-
-	event, err = eventController.EventService.FindById(c, event)
-	if err != nil {
-		helpers.UnprocessableEntityErrorResponse(c, err)
-		return
-	}
-
-	if event.User.Id != user.Id {
-		helpers.ForbiddenErrorResponse(c, errors.New("forbidden request"))
-		return
-	}
-
-	event, err = eventController.EventService.Delete(c, event) 
+	event, err := eventController.EventService.Delete(c, eventIdInt, user) 
 	if err != nil {
 		helpers.UnprocessableEntityErrorResponse(c, err)
 		return
@@ -273,7 +235,6 @@ func (eventController *EventControllerImpl) Delete(c *gin.Context)  {
 			Description: event.Description,
 			Type: event.Type,
 		},
-		
 	})
 }
 
@@ -372,4 +333,53 @@ func (eventController *EventControllerImpl) RegisterParticipant(c *gin.Context) 
 			},
 		},
 	})
+}
+
+func (eventController *EventControllerImpl) FindParticipantByEventId(c *gin.Context)  {
+	eventId := c.Params.ByName("eventId")
+	eventIdInt, err := strconv.Atoi(eventId)
+	if err != nil {
+		helpers.BadRequestErrorResponse(c, err)
+		return
+	}
+	event, participants, err := eventController.EventService.FindParticipantByEventId(c, eventIdInt)
+	if err != nil {
+		helpers.UnprocessableEntityErrorResponse(c, err)
+		return
+	}
+
+	eventResponse := web.EventResponse{
+		Id: event.Id,
+		Title: event.Title,
+		User: web.UserResponse{
+			Id: event.User.Id,
+			Name: event.User.Name,
+			Email: event.User.Email,
+		},
+		StartDate: event.StartDate,
+		EndDate: event.EndDate,
+		Description: event.Description,
+		Type: event.Type,
+	}
+
+	participantsResponse := []web.UserParticipant{}
+	for _, participant := range participants {
+		participantResponse := web.UserParticipant{
+			Id: participant.User.Id,
+			ParticipantId: participant.Id,
+			Name: participant.User.Name,
+			Email: participant.User.Email,
+		}
+		participantsResponse = append(participantsResponse, participantResponse)
+	}
+
+	c.JSON(http.StatusOK, web.WebResponse{
+		Code: http.StatusOK,
+		Status: "OK",
+		Data: web.EventParticipantResponse{
+			Event: eventResponse,
+			Participants: participantsResponse,
+		},
+	})
+
 }

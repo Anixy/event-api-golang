@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users(
   name VARCHAR(200) NOT NULL,
   email VARCHAR(200) UNIQUE NOT NULL,
   password VARCHAR(200) NOT NULL,
+  refresh_token VARCHAR(200),
   created_at TIMESTAMP NOT NULL,
   updated_at TIMESTAMP NOT NULL 
 );

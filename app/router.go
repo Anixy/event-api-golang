@@ -23,6 +23,7 @@ func SetupRouter() *gin.Engine {
 	v1.Use(middleware.AuthMiddleware())
 	auth.POST("/register", userController.Register)
 	auth.POST("/login", userController.Login)
+	auth.POST("/refresh-token", userController.RefreshToken)
 	v1.POST("/event", eventController.Create)
 	v1.GET("/event", eventController.FindAll)
 	v1.GET("/event/:eventId", eventController.FindById)
@@ -30,5 +31,6 @@ func SetupRouter() *gin.Engine {
 	v1.DELETE("/event/:eventId", eventController.Delete)
 	v1.GET("/event/my-event", eventController.FindByUserId)
 	v1.POST("/event/register/:eventId", eventController.RegisterParticipant)
+	v1.GET("/event/participant/:eventId", eventController.FindParticipantByEventId)
 	return r
 }

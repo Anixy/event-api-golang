@@ -1,6 +1,7 @@
 package helpers
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/Anixy/event-api-golang/model/domain"
@@ -20,7 +21,7 @@ func TestCreateJwtToken(t *testing.T) {
 			name: "TEST CREATE TOKEN",
 			args: args{
 				user: domain.User{
-					Id: 1,
+					Id:       1,
 					Name:     "Budi",
 					Email:    "budi@example.com",
 					Password: "secretpassword",
@@ -49,7 +50,7 @@ func TestVerifyJwtToken(t *testing.T) {
 			name: "TEST VALID JWT TOKEN",
 			args: args{
 				tokenString: CreateJwtToken(domain.User{
-					Id: 1,
+					Id:       1,
 					Name:     "Budi",
 					Email:    "budi@example.com",
 					Password: "secretpassword",
@@ -67,7 +68,7 @@ func TestVerifyJwtToken(t *testing.T) {
 
 func TestGetJwtClaim(t *testing.T) {
 	user := domain.User{
-		Id: 1,
+		Id:       1,
 		Name:     "Budi",
 		Email:    "budi@example.com",
 		Password: "secretpassword",
@@ -97,4 +98,30 @@ func TestGetJwtClaim(t *testing.T) {
 			assert.Equal(t, user.Email, userRes.Email)
 		})
 	}
+}
+
+func TestValidateRefreshToken(t *testing.T) {
+	user := domain.User{
+		Id:       1,
+		Name:     "Budi",
+		Email:    "budi@example.com",
+		Password: "secretpassword",
+	}
+	token := CreateJwtToken(user)
+	err := VerifyJwtToken(token)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	user, err = GetJwtClaim(token)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	refreshToken, err := CreateRefreshToken(token)
+	assert.Nil(t, err)
+	user, err = ValidateRefreshToken(refreshToken)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	fmt.Println(user)
+	// fmt.Println(err.Error())	
 }

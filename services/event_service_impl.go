@@ -53,12 +53,31 @@ func (eventService *EventServiceImpl) Create(ctx context.Context, request web.Cr
 	return event, nil
 }
 
-func (eventService *EventServiceImpl) Update(ctx context.Context, event domain.Event) (domain.Event, error) {
+func (eventService *EventServiceImpl) Update(ctx context.Context, request web.CreateOrUpdateEventRequest, eventId int, user domain.User) (domain.Event, error) {
+	eventRequest := domain.Event{
+		Id: eventId,
+		Title: request.Title,
+		StartDate: request.StartDate,
+		EndDate: request.EndDate,
+		Description: request.Description,
+		Type: request.Type,
+	}
 	tx, err := eventService.DB.Begin()
 	if err != nil {
+		return eventRequest, err
+	}
+
+	event, err := eventService.EventRepository.FindById(ctx, tx, eventRequest)
+	if err != nil {
+		tx.Rollback()
 		return event, err
 	}
-	event, err = eventService.EventRepository.Update(ctx, tx, event)
+	if event.User.Id != user.Id {
+		tx.Rollback()
+		return event, errors.New("not allowed request")
+	}
+	eventRequest.User = user
+	event, err = eventService.EventRepository.Update(ctx, tx, eventRequest)
 	if err != nil {
 		tx.Rollback()
 		return event, err
@@ -95,18 +114,30 @@ func (eventService *EventServiceImpl) FindById(ctx context.Context, event domain
 	return events, nil
 }
 
-func (eventService *EventServiceImpl) Delete(ctx context.Context, event domain.Event) (domain.Event, error) {
+func (eventService *EventServiceImpl) Delete(ctx context.Context, eventiId int, user domain.User) (domain.Event, error) {
+	event := domain.Event{
+		Id: eventiId,
+	}
 	tx, err := eventService.DB.Begin()
 	if err != nil {
 		return event, err
 	}
-	events, err := eventService.EventRepository.Delete(ctx, tx, event)
+	event, err = eventService.EventRepository.FindById(ctx, tx, event)
 	if err != nil {
 		tx.Rollback()
-		return events, err
+	}
+	if event.User.Id != user.Id {
+		tx.Rollback()
+		return event, errors.New("not allowed request")
+	}
+	event.User = user
+	event, err = eventService.EventRepository.Delete(ctx, tx, event)
+	if err != nil {
+		tx.Rollback()
+		return event, err
 	}
 	tx.Commit()
-	return events, nil
+	return event, nil
 }
 
 func (eventService *EventServiceImpl) FindByUserId(ctx context.Context, user domain.User) ([]domain.Event, error) {
@@ -160,6 +191,25 @@ func (eventService *EventServiceImpl) RegisterParticipant(ctx context.Context, p
 	}
 	tx.Commit()
 	return participant, nil
+}
+
+func (eventService *EventServiceImpl) FindParticipantByEventId(ctx context.Context, eventId int) (domain.Event,[]domain.Participant, error) {
+	event := domain.Event{
+		Id: eventId,
+	}
+	tx, err := eventService.DB.Begin()
+	if err != nil {
+		return event, nil, err
+	}
+	event, err = eventService.EventRepository.FindById(ctx, tx, event)
+	if err != nil {
+		return event, nil, err
+	}
+	participants , err := eventService.ParticipantRepository.FindByEventId(ctx, tx, event)
+	if err != nil {
+		return event, nil, err
+	}
+	return event, participants, nil
 }
 
 
