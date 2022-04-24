@@ -3,7 +3,7 @@ An backend API for event application
 
 # GET STARTED
 
-Here is the steps to run it with `docker-compose`
+Here is the steps to run the application
 
 ```bash
 #move to directory
